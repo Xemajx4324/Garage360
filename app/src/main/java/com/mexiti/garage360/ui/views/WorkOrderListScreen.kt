@@ -1,5 +1,6 @@
 package com.mexiti.garage360.ui.views
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,14 +15,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mexiti.garage360.R
 import com.mexiti.garage360.model.WorkOrder
 import com.mexiti.garage360.viewmodel.WorkOrderViewModel
 import me.saket.swipe.SwipeAction
@@ -34,6 +39,17 @@ fun WorkOrderListScreen(
 ) {
     val workOrders by viewModel.workOrderList.collectAsState()
 
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    )
+    {Image(
+        painter = painterResource( R.drawable.autos_fondo),
+        contentDescription = "Fondo de taller mecánico",
+        contentScale = ContentScale.Crop,
+        // Hacemos la imagen semi-transparente para que el texto sea legible
+        modifier = Modifier.matchParentSize().alpha(0.1f)
+    )
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -56,6 +72,9 @@ fun WorkOrderListScreen(
             }
         }
     }
+
+}
+
 }
 
 @Composable

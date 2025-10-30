@@ -18,15 +18,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mexiti.garage360.R
 import com.mexiti.garage360.model.Client
 import com.mexiti.garage360.viewmodel.ClientViewModel
 import me.saket.swipe.SwipeAction
@@ -39,29 +42,39 @@ fun ClientListScreen(
 ) {
     val clients by viewModel.clientList.collectAsState()
 
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(clients) { client ->
-            val deleteAction = SwipeAction(
-                icon = rememberVectorPainter(image = Icons.Default.Delete),
-                background = Color.Red,
-                onSwipe = { viewModel.deleteClient(client) }
-            )
-            SwipeableActionsBox(
-                startActions = listOf(deleteAction),
-                swipeThreshold = 100.dp
+    Box(
+        modifier = Modifier
+            .fillMaxSize() )
+    {
+        Image(
+            painter = painterResource( R.drawable.cliente_fondo),
+            contentDescription = "Fondo de taller mecánico",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize().alpha(0.1f)
+        )
+    }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ClientCard(client = client) {
-                    navController.navigate("addEditClient/${client.id}")
+                items(clients) { client ->
+                    val deleteAction = SwipeAction(
+                        icon = rememberVectorPainter(image = Icons.Default.Delete),
+                        background = Color.Red,
+                        onSwipe = { viewModel.deleteClient(client) }
+                    )
+                    SwipeableActionsBox(
+                        startActions = listOf(deleteAction),
+                        swipeThreshold = 100.dp
+                    ) {
+                        ClientCard(client = client) {
+                            navController.navigate("addEditClient/${client.id}")
+                        }
+                    }
                 }
             }
         }
-    }
-}
 
 
 @Composable

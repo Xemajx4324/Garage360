@@ -1,5 +1,6 @@
 package com.mexiti.garage360.ui.views
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -10,10 +11,14 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mexiti.garage360.R
 import com.mexiti.garage360.model.Client
 import com.mexiti.garage360.viewmodel.ClientViewModel
 
@@ -52,6 +57,20 @@ fun AddEditClientScreen(
             )
         }
     ) { paddingValues ->
+
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        )
+        {Image(
+            painter = painterResource( R.drawable.cliente_image),
+            contentDescription = "Fondo de taller mecánico",
+            contentScale = ContentScale.Crop,
+            // Hacemos la imagen semi-transparente para que el texto sea legible
+            modifier = Modifier.matchParentSize().alpha(0.1f)
+        )
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -109,4 +128,5 @@ fun AddEditClientScreen(
             }
         }
     }
+}
 }
