@@ -3,7 +3,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
-
 }
 
 android {
@@ -11,13 +10,13 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.mexiti.cronoapp"
+        applicationId = "com.mexiti.garage360" // Cambiado para coincidir con el namespace
         minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.mexiti.garage360.HiltTestRunner" // Corregido para usar Hilt en tests
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -54,44 +53,57 @@ android {
 
 dependencies {
 
-    // Room
-    val room_version = "2.6.1"
-    implementation ("androidx.room:room-ktx:$room_version")
-    kapt( "androidx.room:room-compiler:$room_version")
-
-//  Dagger Hilt
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
-
-    //Navigation
-    val nav_version = "2.7.7" // Actualiza esta variable
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-
-    // Swipe
-    implementation( "me.saket.swipe:swipe:1.1.1")
-
+    // --- Core y Lifecycle ---
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
+
+    // --- Compose ---
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
+
+    // --- Navigation ---
+    val nav_version = "2.7.7"
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+
+
+    // --- Room (Base de datos) ---
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-ktx:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+
+    // --- Dagger Hilt (Inyección de dependencias) ---
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    kapt("androidx.hilt:hilt-compiler:1.2.0")
+
+
+    // --- UI Extras ---
+    implementation("me.saket.swipe:swipe:1.1.1")
+
+    // --- Pruebas Unitarias ---
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3") // Para probar coroutines
+    testImplementation("org.mockito:mockito-core:4.5.1") // Para mocks
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.mockito:mockito-core:4.5.1")
+    testImplementation("org.mockito:mockito-inline:4.5.1") // <-- AGREGA ESTA LÍNEA
+    // --- Pruebas de Instrumentación (UI) ---
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-
-    androidTestImplementation("androidx.compose.ui:ui-test")
-
-
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    implementation("me.saket.swipe:swipe:1.1.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    implementation("androidx.compose.material:material-icons-extended-android:1.6.7")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    // Hilt para pruebas de instrumentación
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    kaptAndroidTest("com.google.dagger:hilt-compiler:2.51.1")
+
 }
