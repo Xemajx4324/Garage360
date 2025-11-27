@@ -11,5 +11,9 @@ data class WorkOrderState(
     val licensePlate: String = "",
     val vin: String = "",
     val description: String = "",
-    val status: String = "Pendiente"
+    val status: String = "Pendiente",
+    val isUrgent: Boolean = false,
+    val totalCost: String = "",       // Lo manejamos como String para el TextField
+    val deadlineDate: Long = 0L,      // Long para la fecha (milisegundos)
+
 )

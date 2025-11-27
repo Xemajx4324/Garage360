@@ -2,24 +2,30 @@ package com.mexiti.garage360.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "work_orders",
-    foreignKeys = [ForeignKey(entity = Client::class,
-        parentColumns = ["id"],
-        childColumns = ["clientId"],
-        onDelete = ForeignKey.CASCADE)]) // Si borras un cliente, se borran sus órdenes
+@Entity(
+    tableName = "work_orders",
+    foreignKeys = [
+        ForeignKey(entity = Client::class, parentColumns = ["id"], childColumns = ["clientId"], onDelete = ForeignKey.CASCADE)
+    ],
+
+    indices = [Index(value = ["clientId"])]
+)
 data class WorkOrder(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val clientId: Long, // Para relacionarlo con el cliente
-    val vehicleMake: String, // Marca
-    val vehicleModel: String, // Modelo
-    val vehicleYear: Int, // Año (Tipo Int)
-    val licensePlate: String, // Placa
-    val vin: String? = null, // VIN (Opcional)
-    val description: String, // Servicio a realizar
-    val entryDate: Long = System.currentTimeMillis(), // Fecha de entrada (Tipo Long)
-    var status: String = "Pendiente" // Estado: Pendiente, En Proceso, Terminado (Tipo String)
-    // Podrías añadir fecha de salida, costo, etc.
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val clientId: Long,
+    val vehicleMake: String,
+    val vehicleModel: String,
+    val vehicleYear: Int,
+    val licensePlate: String,
+    val vin: String?,
+    val description: String,
+    val status: String,
+    val isUrgent: Boolean,
+
+
+    val totalCost: Double = 0.0,
+    val deadlineDate: Long = 0L
 )

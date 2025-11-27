@@ -3,6 +3,9 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
+    id("com.google.gms.google-services") 
+    id("org.jetbrains.kotlin.plugin.compose")
+
 }
 
 android {
@@ -105,5 +108,15 @@ dependencies {
     // Hilt para pruebas de instrumentación
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.51.1")
     kaptAndroidTest("com.google.dagger:hilt-compiler:2.51.1")
+
+    // Firebase (Base de datos)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-firestore")
+
+    // Coil (Para cargar imágenes de internet)
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
 
 }

@@ -2,13 +2,15 @@ package com.mexiti.garage360.ui.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,12 +18,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,115 +39,131 @@ fun WorkOrderListScreen(
     navController: NavController,
     viewModel: WorkOrderViewModel = hiltViewModel()
 ) {
-    val workOrders by viewModel.workOrderList.collectAsState()
+    // Escuchamos la lista de órdenes en tiempo real
+    val orders by viewModel.workOrderList.collectAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    )
-    {Image(
-        painter = painterResource( R.drawable.autos_fondo),
-        contentDescription = "Fondo de taller mecánico",
-        contentScale = ContentScale.Crop,
-        // Hacemos la imagen semi-transparente para que el texto sea legible
-        modifier = Modifier.matchParentSize().alpha(0.1f)
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Fondo (puedes usar el mismo de clientes o uno nuevo)
+        Image(
+            painter = painterResource(R.drawable.cliente_fondo),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize().alpha(0.05f)
+        )
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(workOrders) { order ->
-            val deleteAction = SwipeAction(
-                icon = rememberVectorPainter(image = Icons.Default.Delete),
-                background = Color.Red,
-                onSwipe = { viewModel.deleteWorkOrder(order) }
-            )
-            SwipeableActionsBox(
-                startActions = listOf(deleteAction),
-                swipeThreshold = 100.dp
+        if (orders.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("No hay vehículos registrados", color = Color.Gray)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                WorkOrderCard(workOrder = order) {
-                    navController.navigate("addEditWorkOrder/${order.id}")
+                items(orders, key = { it.id }) { order ->
+                    // Acción de borrar
+                    val deleteAction = SwipeAction(
+                        icon = rememberVectorPainter(Icons.Default.Delete),
+                        background = MaterialTheme.colorScheme.errorContainer,
+                        onSwipe = { viewModel.deleteWorkOrder(order) }
+                    )
+
+                    SwipeableActionsBox(
+                        startActions = listOf(deleteAction),
+                        swipeThreshold = 100.dp,
+                        backgroundUntilSwipeThreshold = Color.Transparent
+                    ) {
+                        WorkOrderCard(order = order) {
+                            // Al hacer clic, vamos a editar
+                            navController.navigate("addEditWorkOrder/${order.id}")
+                        }
+                    }
                 }
+                // Espacio para el botón flotante
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
-
 }
 
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkOrderCard(workOrder: WorkOrder, onClick: () -> Unit) {
-    val statusColor = when (workOrder.status.lowercase()) {
-        "pendiente" -> Color(0xFFF44336) // Rojo
-        "en proceso" -> Color(0xFFFF9800) // Naranja
-        "terminado" -> Color(0xFF4CAF50) // Verde
-        else -> Color.Gray
-    }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+fun WorkOrderCard(order: WorkOrder, onClick: () -> Unit) {
+    ElevatedCard(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (order.isUrgent) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+            else MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min),
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Icono de Coche
             Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .width(10.dp)
-                    .background(statusColor)
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Icon(
-                imageVector = Icons.Filled.DirectionsCar,
-                contentDescription = "Vehículo",
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.secondary
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 12.dp)
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "${workOrder.vehicleMake} ${workOrder.vehicleModel} (${workOrder.vehicleYear})",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 17.sp
-                )
-                Text(
-                    text = workOrder.licensePlate,
-                    fontSize = 15.sp,
-                    color = Color.DarkGray
-                )
-                Text(
-                    text = workOrder.description,
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                Icon(
+                    imageVector = Icons.Default.DirectionsCar,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
 
-            Text(
-                text = workOrder.status.uppercase(),
-                fontWeight = FontWeight.Bold,
-                color = statusColor,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${order.vehicleMake} ${order.vehicleModel} (${order.vehicleYear})",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Placas: ${order.licensePlate}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                // Estado y Urgencia
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
+                    // Badge de Estado
+                    Surface(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(4.dp)
+                    ) {
+                        Text(
+                            text = order.status,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    // Icono de Urgencia
+                    if (order.isUrgent) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Urgente",
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "URGENTE",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(start = 2.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
